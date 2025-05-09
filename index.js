@@ -29,9 +29,14 @@ app.get("/", (req, res) => {
 app.use("/api", routes);
 
 // Porta padrão
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('API funcionando!');
+});
+
 app.listen(PORT, () => {
-  console.log(`Server Started at ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 // Conexão com MongoDB
