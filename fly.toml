@@ -24,7 +24,7 @@ primary_region = "gru"
     port = 443
 
 [checks]
-  [checks.app.status]
+  [checks.status]
     type = "http"
     interval = "15s"
     timeout = "10s"
