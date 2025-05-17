@@ -19,3 +19,14 @@ primary_region = "gru"  # Use "gru" (São Paulo) ou outro próximo de você
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+[deploy]
+  strategy = "rolling"
+
+[checks]
+  [checks.status]
+    type = "http"
+    interval = "15s"
+    timeout = "10s"
+    method = "get"
+    path = "/"
