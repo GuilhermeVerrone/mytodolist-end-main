@@ -1,6 +1,5 @@
-app = "mytodolist-end-main"  # Nome da sua aplicação no Fly
-
-primary_region = "gru"  # Use "gru" (São Paulo) ou outro próximo de você
+app = "mytodolist-end-main"
+primary_region = "gru"
 
 [build]
   image = "node:18"
@@ -8,9 +7,13 @@ primary_region = "gru"  # Use "gru" (São Paulo) ou outro próximo de você
 [env]
   PORT = "8080"
 
+[processes]
+  app = "node index.js"  # substitua por seu comando real para rodar o app
+
 [[services]]
   internal_port = 8080
   protocol = "tcp"
+  processes = ["app"]
 
   [[services.ports]]
     handlers = ["http"]
@@ -20,11 +23,8 @@ primary_region = "gru"  # Use "gru" (São Paulo) ou outro próximo de você
     handlers = ["tls", "http"]
     port = 443
 
-[deploy]
-  strategy = "rolling"
-
 [checks]
-  [checks.status]
+  [checks.app.status]
     type = "http"
     interval = "15s"
     timeout = "10s"
