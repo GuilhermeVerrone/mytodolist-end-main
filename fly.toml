@@ -8,7 +8,7 @@ primary_region = "gru"
   PORT = "8080"
 
 [processes]
-  app = "node server.js"
+  app = "node index.js"
 
 [[services]]
   internal_port = 8080
