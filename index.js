@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 app.use("/api", routes);
 
 // Porta padrão
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 app.get('/', (req, res) => {
   res.send('API funcionando!');
