@@ -22,10 +22,3 @@ primary_region = "gru"
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
-
-[checks.app.status]
-type = "http"
-interval = "15s"
-timeout = "10s"
-method = "get"
-path = "/"
