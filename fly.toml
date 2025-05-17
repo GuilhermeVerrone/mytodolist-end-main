@@ -12,7 +12,7 @@ primary_region = "gru"
 
 [[services]]
   internal_port = 8080
-  protocol = "http"       # altere para "http" em vez de "tcp"
+  protocol = "http"
   processes = ["app"]
 
   [[services.ports]]
@@ -23,11 +23,9 @@ primary_region = "gru"
     handlers = ["tls", "http"]
     port = 443
 
-[checks]
-  [checks.status]
-    type = "http"
-    interval = "15s"
-    timeout = "10s"
-    method = "get"
-    path = "/"
-    # Não precisa colocar 'port' aqui se o protocolo do serviço for "http"
+[checks.app.status]
+type = "http"
+interval = "15s"
+timeout = "10s"
+method = "get"
+path = "/"
