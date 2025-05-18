@@ -1,0 +1,24 @@
+app = "mytodolist-end-main"
+primary_region = "gru"
+
+[build]
+  image = "node:18"
+
+[env]
+  PORT = "8080"
+
+[processes]
+  app = "node index.js"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  processes = ["app"]
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
