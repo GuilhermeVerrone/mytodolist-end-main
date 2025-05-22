@@ -66,8 +66,6 @@ function verificaUsuarioSenha(req, res, next) {
 }
 const jwt = require("jsonwebtoken");
 
-module.exports = router;
-
 // LOGIN - gera token JWT
 router.post("/login", (req, res) => {
   const { nome, senha } = req.body;
