@@ -3,7 +3,7 @@ const router = express.Router();
 module.exports = router;
 const modeloTarefa = require("../models/tarefa");
 
-router.post("/post", async (req, res) => {
+router.post("/post", verificaUsuarioSenha, async (req, res) => {
   const objetoTarefa = new modeloTarefa({
     descricao: req.body.descricao,
     statusRealizada: req.body.statusRealizada,
@@ -16,7 +16,7 @@ router.post("/post", async (req, res) => {
   }
 });
 
-router.get("/getAll", async (req, res) => {
+router.get("/getAll", verificaUsuarioSenha, async (req, res) => {
   try {
     const resultados = await modeloTarefa.find();
     res.json(resultados);
@@ -25,7 +25,7 @@ router.get("/getAll", async (req, res) => {
   }
 });
 
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", verificaUsuarioSenha, async (req, res) => {
   try {
     const resultado = await modeloTarefa.findByIdAndDelete(req.params.id);
     res.json(resultado);
@@ -34,7 +34,7 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
-router.patch("/update/:id", async (req, res) => {
+router.patch("/update/:id", verificaUsuarioSenha, async (req, res) => {
   try {
     const id = req.params.id;
     const novaTarefa = req.body;
@@ -49,3 +49,12 @@ router.patch("/update/:id", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+function verificaUsuarioSenha(req, res, next) {
+ if (req.body.nome !== 'branqs' || req.body.senha !== '1234') {
+ return res.status(401).json({ auth: false, message: 'Usuario ou Senha incorreta' });
+ }
+ next();
+}
+
+
