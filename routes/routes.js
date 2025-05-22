@@ -3,7 +3,7 @@ const router = express.Router();
 module.exports = router;
 const modeloTarefa = require("../models/tarefa");
 
-router.post("/post", verificaUsuarioSenha, async (req, res) => {
+router.post("/post", async (req, res) => {
   const objetoTarefa = new modeloTarefa({
     descricao: req.body.descricao,
     statusRealizada: req.body.statusRealizada,
@@ -25,7 +25,7 @@ router.get("/getAll", verificaUsuarioSenha, async (req, res) => {
   }
 });
 
-router.delete("/delete/:id", verificaUsuarioSenha, async (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
   try {
     const resultado = await modeloTarefa.findByIdAndDelete(req.params.id);
     res.json(resultado);
@@ -34,7 +34,7 @@ router.delete("/delete/:id", verificaUsuarioSenha, async (req, res) => {
   }
 });
 
-router.patch("/update/:id", verificaUsuarioSenha, async (req, res) => {
+router.patch("/update/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const novaTarefa = req.body;
