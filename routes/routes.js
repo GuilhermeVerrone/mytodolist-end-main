@@ -51,10 +51,17 @@ router.patch("/update/:id", async (req, res) => {
 });
 
 function verificaUsuarioSenha(req, res, next) {
- if (req.body.nome !== 'branqs' || req.body.senha !== '1234') {
- return res.status(401).json({ auth: false, message: 'Usuario ou Senha incorreta' });
- }
- next();
-}
+  const nome = req.body?.nome || req.query?.nome || req.headers["x-nome"];
+  const senha = req.body?.senha || req.query?.senha || req.headers["x-senha"];
 
+  if (!nome || !senha) {
+    return res.status(400).json({ message: "Nome e senha são obrigatórios." });
+  }
+
+  if (nome !== 'branqs' || senha !== '1234') {
+    return res.status(401).json({ auth: false, message: 'Usuário ou senha incorreta' });
+  }
+
+  next();
+}
 
