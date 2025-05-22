@@ -69,7 +69,6 @@ const jwt = require("jsonwebtoken");
 // LOGIN - gera token JWT
 //Segunda forma de Autenticacao - Busca usuário no BD e compara senha
 const userModel = require('../models/user');
-var jwt = require('jsonwebtoken');
 router.post('/login', async (req, res) => {
  try {
  const data = await userModel.findOne({ 'nome': req.body.nome });
