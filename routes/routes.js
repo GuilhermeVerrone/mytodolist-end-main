@@ -67,16 +67,24 @@ function verificaUsuarioSenha(req, res, next) {
 const jwt = require("jsonwebtoken");
 
 // LOGIN - gera token JWT
-router.post("/login", (req, res) => {
-  const { nome, senha } = req.body;
+//Segunda forma de Autenticacao - Busca usuário no BD e compara senha
+const userModel = require('../models/user');
+var jwt = require('jsonwebtoken');
+router.post('/login', async (req, res) => {
+ try {
+ const data = await userModel.findOne({ 'nome': req.body.nome });
 
-  if (nome === "branqs" && senha === "1234") {
-    const token = jwt.sign({ nome }, "segredo", { expiresIn: 300 }); // expira em 5 minutos
-    return res.json({ auth: true, token });
-  }
+ if (data != null && data.senha === req.body.senha) {
+ const token = jwt.sign({ id: req.body.user }, 'segredo',
+ { expiresIn: 300 });
+ return res.json({ token: token });
+ }
 
-  return res.status(401).json({ message: "Login inválido!" });
-});
+ res.status(500).json({ message: 'Login invalido!' });
+ } catch (error) {
+ res.status(500).json({ message: error.message })
+ }
+})
 
 // Middleware de verificação JWT
 function verificaJWT(req, res, next) {
