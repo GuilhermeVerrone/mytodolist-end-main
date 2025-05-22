@@ -16,7 +16,7 @@ router.post("/post", async (req, res) => {
   }
 });
 
-router.get("/getAll", verificaUsuarioSenha, async (req, res) => {
+router.get("/getAll", verificaJWT, async (req, res) => {
   try {
     const resultados = await modeloTarefa.find();
     res.json(resultados);
@@ -64,4 +64,35 @@ function verificaUsuarioSenha(req, res, next) {
 
   next();
 }
+const jwt = require("jsonwebtoken");
 
+module.exports = router;
+
+// LOGIN - gera token JWT
+router.post("/login", (req, res) => {
+  const { nome, senha } = req.body;
+
+  if (nome === "branqs" && senha === "1234") {
+    const token = jwt.sign({ nome }, "segredo", { expiresIn: 300 }); // expira em 5 minutos
+    return res.json({ auth: true, token });
+  }
+
+  return res.status(401).json({ message: "Login inválido!" });
+});
+
+// Middleware de verificação JWT
+function verificaJWT(req, res, next) {
+  const token = req.headers["id-token"];
+
+  if (!token) {
+    return res.status(401).json({ auth: false, message: "Token não fornecido." });
+  }
+
+  jwt.verify(token, "segredo", (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ auth: false, message: "Token inválido ou expirado." });
+    }
+    req.usuario = decoded.nome;
+    next();
+  });
+}
