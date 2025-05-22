@@ -101,3 +101,47 @@ function verificaJWT(req, res, next) {
     next();
   });
 }
+
+router.post("/users", verificaJWT, verificaAdmin, async (req, res) => {
+  try {
+    const user = new userModel(req.body);
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// READ
+router.get("/users", verificaJWT, verificaAdmin, async (req, res) => {
+  try {
+    const users = await userModel.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// UPDATE
+router.patch("/users/:id", verificaJWT, verificaAdmin, async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE
+router.delete("/users/:id", verificaJWT, verificaAdmin, async (req, res) => {
+  try {
+    await userModel.findByIdAndDelete(req.params.id);
+    res.json({ message: "Usuário deletado" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = router;
