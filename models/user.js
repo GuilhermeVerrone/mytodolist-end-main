@@ -3,7 +3,7 @@ var mongoose = require("mongoose");
 var userSchema = new mongoose.Schema(
   {
     nome: { unique: true, type: String },
-    ring,
+    ring: String,
     salt: String,
     admin: { type: Boolean, default: false },
   },
