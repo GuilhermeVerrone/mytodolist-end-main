@@ -106,7 +106,7 @@ async function verificaAdmin(req, res, next) {
 router.post("/login", async (req, res) => {
   try {
     const data = await userModel.findOne({ nome: req.body.nome });
-    if (data != null && data.senha === req.body.senha) {
+    if (data!=null && validPassword(req.body.senha, data.hash, data.salt)) {
       const token = jwt.sign(
         {
           id: data._id,
