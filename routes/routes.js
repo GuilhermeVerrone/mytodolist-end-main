@@ -1,35 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const modeloTarefa = require("../models/tarefa");
-const userModel = require('../models/user');
+const userModel = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-// Middleware de verificação JWT
-function verificaJWT(req, res, next) {
-  const token = req.headers["id-token"];
-
-  if (!token) {
-    return res.status(401).json({ auth: false, message: "Token não fornecido." });
-  }
-
-  jwt.verify(token, "segredo", (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ auth: false, message: "Token inválido ou expirado." });
-    }
-    req.usuario = decoded;  // ✅ Agora passa todo o payload (com admin!)
-    next();
-  });
-}
-
-// Middleware para verificar se é admin
-function verificaAdmin(req, res, next) {
-  if (!req.usuario || !req.usuario.admin) {
-    return res.status(403).json({ message: "Acesso negado. Apenas administradores." });
-  }
-  next();
-}
-
-// Rotas Tarefas
+// Criar nova tarefa
 router.post("/post", async (req, res) => {
   const objetoTarefa = new modeloTarefa({
     descricao: req.body.descricao,
@@ -43,6 +18,7 @@ router.post("/post", async (req, res) => {
   }
 });
 
+// Buscar todas as tarefas (requer login)
 router.get("/getAll", verificaJWT, async (req, res) => {
   try {
     const resultados = await modeloTarefa.find();
@@ -52,6 +28,7 @@ router.get("/getAll", verificaJWT, async (req, res) => {
   }
 });
 
+// Deletar tarefa
 router.delete("/delete/:id", async (req, res) => {
   try {
     const resultado = await modeloTarefa.findByIdAndDelete(req.params.id);
@@ -61,37 +38,87 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+// Atualizar tarefa
 router.patch("/update/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const novaTarefa = req.body;
     const options = { new: true };
-    const result = await modeloTarefa.findByIdAndUpdate(id, novaTarefa, options);
+    const result = await modeloTarefa.findByIdAndUpdate(
+      id,
+      novaTarefa,
+      options
+    );
     res.json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-// LOGIN - gera token JWT
-router.post('/login', async (req, res) => {
-  try {
-    const data = await userModel.findOne({ 'nome': req.body.nome });
+// Verificação simples (desativada, não usada mais)
+function verificaUsuarioSenha(req, res, next) {
+  if (req.body.nome !== "branqs" || req.body.senha !== "1234") {
+    return res
+      .status(401)
+      .json({ auth: false, message: "Usuario ou Senha incorreta" });
+  }
+  next();
+}
 
+// Autenticação JWT (verifica token)
+function verificaJWT(req, res, next) {
+  const token = req.headers["id-token"];
+  if (!token)
+    return res
+      .status(401)
+      .json({ auth: false, message: "Token não fornecido" });
+
+  jwt.verify(token, "segredo", (err, decoded) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ auth: false, message: "Falha na verificação do token" });
+    }
+    req.userId = decoded.id;
+    req.isAdmin = decoded.admin; // adiciona flag admin na request
+    next();
+  });
+}
+
+// Verifica se o usuário é admin
+async function verificaAdmin(req, res, next) {
+  const token = req.headers["id-token"];
+  if (!token) return res.status(401).json({ message: "Token não fornecido" });
+
+  try {
+    const decoded = jwt.verify(token, "segredo");
+    const user = await userModel.findById(decoded.id);
+    if (!user || !user.admin) {
+      return res.status(403).json({ message: "Acesso negado. Não é admin." });
+    }
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: "Token inválido" });
+  }
+}
+
+// Login (autenticação com MongoDB)
+router.post("/login", async (req, res) => {
+  try {
+    const data = await userModel.findOne({ nome: req.body.nome });
     if (data != null && data.senha === req.body.senha) {
       const token = jwt.sign(
-        { 
+        {
           id: data._id,
           nome: data.nome,
-          admin: data.admin  // ✅ Inclui o admin aqui!
+          admin: data.admin === true,
         },
-        'segredo',
-        { expiresIn: 300 } // 5 minutos
+        "segredo",
+        { expiresIn: 300 } // token expira em 5 minutos
       );
       return res.json({ token: token });
     }
-
-    res.status(401).json({ message: 'Login inválido!' });
+    res.status(401).json({ message: "Login inválido!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
