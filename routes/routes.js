@@ -97,7 +97,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// CRUD Usuários (apenas para admin)
+// CRUD de usuários (admin only)
+
+// CREATE
 router.post("/users", verificaJWT, verificaAdmin, async (req, res) => {
   try {
     const user = new userModel(req.body);
@@ -108,6 +110,7 @@ router.post("/users", verificaJWT, verificaAdmin, async (req, res) => {
   }
 });
 
+// READ
 router.get("/users", verificaJWT, verificaAdmin, async (req, res) => {
   try {
     const users = await userModel.find();
@@ -117,15 +120,19 @@ router.get("/users", verificaJWT, verificaAdmin, async (req, res) => {
   }
 });
 
+// UPDATE
 router.patch("/users/:id", verificaJWT, verificaAdmin, async (req, res) => {
   try {
-    const user = await userModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const user = await userModel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
+// DELETE
 router.delete("/users/:id", verificaJWT, verificaAdmin, async (req, res) => {
   try {
     await userModel.findByIdAndDelete(req.params.id);
