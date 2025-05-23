@@ -137,6 +137,24 @@ router.post("/users", verificaJWT, verificaAdmin, async (req, res) => {
   }
 });
 
+router.post("/users/init", async (req, res) => {
+  try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.senha, saltRounds);
+
+    const user = new userModel({
+      nome: req.body.nome,
+      senha: hashedPassword,
+      admin: true // garante que o primeiro seja admin
+    });
+
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // READ
 router.get("/users", verificaJWT, verificaAdmin, async (req, res) => {
   try {
