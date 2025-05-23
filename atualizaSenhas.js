@@ -1,27 +1,25 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const { createHash, randomBytes } = require('crypto');
 const userModel = require('./models/user');
 
-mongoose.connect('mongodb+srv://guilherme216361:esmeralda2701@cluster0.wqawz.mongodb.net/tarefasDB?retryWrites=true&w=majority&appName=Cluster0', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose.connect('mongodb+srv://guilherme216361:esmeralda2701@cluster0.wqawz.mongodb.net/tarefasDB?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true, useUnifiedTopology: true })
 
-async function updatePasswords() {
+async function migratePasswords() {
   const users = await userModel.find();
 
   for (let user of users) {
-    if (!user.senha.startsWith('$2b$')) {  // Verifica se já é hash
-      const hashed = await bcrypt.hash(user.senha, 10);
-      user.senha = hashed;
-      await user.save();
-      console.log(`Senha atualizada para usuário: ${user.nome}`);
-    } else {
-      console.log(`Usuário ${user.nome} já está com senha hasheada.`);
-    }
+    const salt = randomBytes(16).toString('hex');
+    const hash = createHash('sha256').update('1234' + salt).digest('hex'); // Aqui você coloca a senha padrão ou a atual de cada usuário
+
+    user.hash = hash;
+    user.salt = salt;
+
+    await user.save();
+
+    console.log(`Usuário ${user.nome} migrado com sucesso.`);
   }
 
-  mongoose.disconnect();
+  mongoose.connection.close();
 }
 
-updatePasswords();
+migratePasswords().catch(err => console.error(err));
