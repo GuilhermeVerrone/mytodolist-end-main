@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { createHash, randomBytes } = require('crypto');
 const userModel = require('./models/user');
 
-mongoose.connect('mongodb+srv://guilherme216361:esmeralda2701@cluster0.wqawz.mongodb.net/tarefasDB?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://guilherme216361:esmeralda2701@cluster0.wqawz.mongodb.net/tarefasDB?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function migratePasswords() {
   const users = await userModel.find();
