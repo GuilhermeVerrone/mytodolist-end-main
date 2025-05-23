@@ -105,18 +105,21 @@ async function verificaAdmin(req, res, next) {
 // Login (autenticação com MongoDB)
 router.post("/login", async (req, res) => {
   try {
-    const data = await userModel.findOne({ nome: req.body.nome });
-    if (data != null && data.senha === req.body.senha) {
-      const token = jwt.sign(
-        {
-          id: data._id,
-          nome: data.nome,
-          admin: data.admin === true,
-        },
-        "segredo",
-        { expiresIn: 300 } // token expira em 5 minutos
-      );
-      return res.json({ token: token });
+    const user = await userModel.findOne({ nome: req.body.nome });
+    if (user) {
+      const isMatch = await user.comparePassword(req.body.senha);
+      if (isMatch) {
+        const token = jwt.sign(
+          {
+            id: user._id,
+            nome: user.nome,
+            admin: user.admin === true,
+          },
+          "segredo",
+          { expiresIn: 300 }
+        );
+        return res.json({ token: token });
+      }
     }
     res.status(401).json({ message: "Login inválido!" });
   } catch (error) {
