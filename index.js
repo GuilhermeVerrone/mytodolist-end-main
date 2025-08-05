@@ -31,8 +31,8 @@ app.use("/api", routes);
 // Porta padrão
 const PORT = process.env.PORT || 8080;
 
-app.get('/', (req, res) => {
-  res.send('API funcionando!');
+app.get("/", (req, res) => {
+  res.send("API funcionando!");
 });
 
 app.listen(PORT, () => {
